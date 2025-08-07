@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/control_produccion_ventas_db?createDatabaseIfNotExist=true&serverTimezone=America/Lima
+    username: root
+    password: root
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties.hibernate.format_sql: true
+
+server:
+  port: 8080
+
+jwt:
+  secret: CambiaEstaClaveSuperSecreta1234567890
+  expiration: 86400000

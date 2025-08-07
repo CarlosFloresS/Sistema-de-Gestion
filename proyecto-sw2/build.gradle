@@ -1,0 +1,66 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.2.5'        // versión estable actual
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group   = 'com.cibertec'
+version = '0.0.1-SNAPSHOT'
+
+/* --- Java 21 --- */
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+/* --- Variables de versión centralizadas --- */
+ext {
+    jjwtVersion   = '0.11.5'
+    lombokVersion = '1.18.30'
+}
+
+/* --- Configuración para que compileOnly herede annotationProcessor --- */
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    /* ==== Spring Boot Starters ==== */
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    /* ==== Lombok ==== */
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+    /* ==== Base de datos ==== */
+    runtimeOnly 'com.mysql:mysql-connector-j'
+
+    /* ==== JWT (JJWT) ==== */
+    implementation "io.jsonwebtoken:jjwt-api:${jjwtVersion}"
+    runtimeOnly   "io.jsonwebtoken:jjwt-impl:${jjwtVersion}"
+    runtimeOnly   "io.jsonwebtoken:jjwt-jackson:${jjwtVersion}"   // usa Jackson para serializar claims
+
+    /* ==== Test ==== */
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+/* --- Opcional: fat JAR sin el 'plain' (evita conflicto con bootJar) --- */
+tasks.named('jar') {
+    enabled = false
+}
