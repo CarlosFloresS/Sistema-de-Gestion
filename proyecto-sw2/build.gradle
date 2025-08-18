@@ -54,6 +54,18 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    /* ==== Test Core ==== */
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    // Incluye: JUnit 5 (Jupiter), AssertJ, Hamcrest, Mockito básico
+
+    /* ==== Mockito Avanzado ==== */
+    testImplementation 'org.mockito:mockito-core:5.11.0'         // mocks principales
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.11.0' // integración con JUnit 5
+
+    /* ==== Spring Security Test ==== */
+    testImplementation 'org.springframework.security:spring-security-test'
+
 }
 
 tasks.named('test') {
