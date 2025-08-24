@@ -2,7 +2,7 @@ package com.cibertec.proyectosw2.controller;
 
 import com.cibertec.proyectosw2.dto.AuthRequestDto;
 import com.cibertec.proyectosw2.dto.AuthResponseDto;
-import com.cibertec.proyectosw2.entity.Rol;
+import com.cibertec.proyectosw2.entity.enums.Rol;
 import com.cibertec.proyectosw2.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

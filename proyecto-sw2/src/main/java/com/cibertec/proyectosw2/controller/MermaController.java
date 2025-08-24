@@ -1,30 +1,42 @@
 package com.cibertec.proyectosw2.controller;
 
-import com.cibertec.proyectosw2.dto.MermaDto;
+import com.cibertec.proyectosw2.dto.MermaRequestDto;
+import com.cibertec.proyectosw2.dto.MermaResponseDto;
+import com.cibertec.proyectosw2.security.CustomUserDetails;
 import com.cibertec.proyectosw2.service.MermaService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.*;
+import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/mermas")
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class MermaController {
 
-    private final MermaService service;
+    private final MermaService mermaService;
 
-    /* Listar todas las mermas */
-    @GetMapping
-    public List<MermaDto> listar() {
-        return service.listar();
+    @PostMapping
+    public ResponseEntity<MermaResponseDto> registrarMerma(
+            @RequestBody @Valid MermaRequestDto dto,
+            @AuthenticationPrincipal CustomUserDetails currentUser) {
+
+        Long operarioId = currentUser.getId();
+        MermaResponseDto mermaGuardada = mermaService.registrarMerma(dto, operarioId);
+        return new ResponseEntity<>(mermaGuardada, HttpStatus.CREATED);
     }
 
-    /* Registrar merma */
-    @PostMapping
-    public ResponseEntity<MermaDto> crear(@RequestBody @Valid MermaDto dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.crear(dto));
+    @GetMapping("/{id}")
+    public ResponseEntity<MermaResponseDto> obtenerMermaPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(mermaService.obtenerMermaPorId(id));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<MermaResponseDto>> listarTodasLasMermas() {
+        return ResponseEntity.ok(mermaService.listarTodasLasMermas());
     }
 }

@@ -1,62 +1,92 @@
 package com.cibertec.proyectosw2.service.impl;
 
-import com.cibertec.proyectosw2.dto.ProductoDto;
+import com.cibertec.proyectosw2.dto.ProductoRequestDto;
+import com.cibertec.proyectosw2.dto.ProductoResponseDto;
 import com.cibertec.proyectosw2.entity.Producto;
 import com.cibertec.proyectosw2.exception.ResourceNotFoundException;
 import com.cibertec.proyectosw2.mapper.ProductoMapper;
 import com.cibertec.proyectosw2.repository.ProductoRepository;
 import com.cibertec.proyectosw2.service.ProductoService;
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
-@Transactional
+@AllArgsConstructor
 public class ProductoServiceImpl implements ProductoService {
 
-    private final ProductoRepository repo;
+    private final ProductoRepository productoRepository;
+    private final ProductoMapper productoMapper;
 
     @Override
-    public ProductoDto crear(ProductoDto dto) {
-        Producto saved = repo.save(ProductoMapper.toEntity(dto));
-        return ProductoMapper.toDto(saved);
+    @Transactional
+    public ProductoResponseDto registrarProducto(ProductoRequestDto productoDto) {
+        productoRepository.findByNombreIgnoreCase(productoDto.getNombre()).ifPresent(p -> {
+            throw new IllegalArgumentException("Ya existe un producto con el nombre: " + productoDto.getNombre());
+        });
+
+        Producto producto = productoMapper.toEntity(productoDto);
+        Producto productoGuardado = productoRepository.save(producto);
+        return productoMapper.toResponseDto(productoGuardado);
     }
 
     @Override
-    public List<ProductoDto> listar() {
-        return repo.findByEstadoTrue()
-                .stream()
-                .map(ProductoMapper::toDto)
-                .toList();
-    }
-
-    @Override
-    public ProductoDto actualizar(Long id, ProductoDto dto) {
-        Producto p = repo.findById(id)
+    @Transactional
+    public ProductoResponseDto actualizarProducto(Long id, ProductoRequestDto productoDto) {
+        Producto productoExistente = productoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Producto", id));
 
-        p.setNombre(dto.getNombre());
-        p.setDescripcion(dto.getDescripcion());
-        p.setPrecio(dto.getPrecio());
-        p.setStock(dto.getStock());
+        productoExistente.setNombre(productoDto.getNombre());
+        productoExistente.setDescripcion(productoDto.getDescripcion());
+        productoExistente.setPrecio(productoDto.getPrecio());
+        productoExistente.setCosto(productoDto.getCosto());
 
-        return ProductoMapper.toDto(repo.save(p));
+        Producto productoActualizado = productoRepository.save(productoExistente);
+        return productoMapper.toResponseDto(productoActualizado);
     }
 
     @Override
-    public void eliminar(Long id) {
-        Producto p = repo.findById(id)
+    @Transactional
+    public ProductoResponseDto obtenerProductoPorId(Long id) {
+        Producto producto = productoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Producto", id));
-        p.setEstado(false);          // soft delete
-        repo.save(p);
+        return productoMapper.toResponseDto(producto);
     }
 
     @Override
-    public Producto obtenerEntidad(Long id) {
-        return repo.findById(id)
+    @Transactional(readOnly = true)
+    public List<ProductoResponseDto> listarTodosLosProductos() {
+        return productoRepository.findAll().stream()
+                .map(productoMapper::toResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductoResponseDto> listarProductosActivos() {
+        return productoRepository.findByEstado(true).stream()
+                .map(productoMapper::toResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void desactivarProducto(Long id) {
+        Producto producto = productoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Producto", id));
+        producto.setEstado(false);
+        productoRepository.save(producto);
+    }
+
+    @Override
+    @Transactional
+    public void activarProducto(Long id) {
+        Producto producto = productoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Producto", id));
+        producto.setEstado(true);
+        productoRepository.save(producto);
     }
 }

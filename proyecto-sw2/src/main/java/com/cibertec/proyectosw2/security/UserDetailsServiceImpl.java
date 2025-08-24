@@ -3,12 +3,9 @@ package com.cibertec.proyectosw2.security;
 import com.cibertec.proyectosw2.entity.Usuario;
 import com.cibertec.proyectosw2.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -21,25 +18,25 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Usuario u = repo.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
-        return new User(
-                u.getUsername(),
-                u.getPassword(),
-                List.of(new SimpleGrantedAuthority("ROLE_" + u.getRol()))
-        );
+
+        // ¡CAMBIO CLAVE! Devolvemos nuestra clase personalizada en lugar de la genérica.
+        return new CustomUserDetails(u);
     }
 
     /* ---------- Utilidad: usuario actualmente logueado ---------- */
+    // Este método puede seguir existiendo, pero ya no lo necesitaremos en los controllers.
+    // Lo dejamos por si lo usas en otros servicios.
     public Usuario getCurrentUser() throws UsernameNotFoundException {
         Object principal = SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getPrincipal();
+
         String username;
 
-        // Cuando el token es válido, principal será un UserDetails
-        if (principal instanceof UserDetails userDetails) {
+        // Ahora el principal siempre será de tipo CustomUserDetails
+        if (principal instanceof CustomUserDetails userDetails) {
             username = userDetails.getUsername();
         } else {
-            // En caso extremo, principal puede ser un String con el username
             username = principal.toString();
         }
 

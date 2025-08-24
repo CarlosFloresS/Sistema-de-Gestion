@@ -1,24 +1,19 @@
 package com.cibertec.proyectosw2.dto;
 
-import jakarta.validation.constraints.*;
-import lombok.*;
-
+import lombok.Builder;
+import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
 @Builder
-public class MermaDto {
+public class MermaResponseDto {
 
     private Long id;
-
-    @Positive
     private Long productoId;
-
-    @Positive
+    private String productoNombre;
     private Integer cantidad;
-
-    @Size(max = 255)
     private String motivo;
-
     private LocalDateTime fecha;
+    private Long operarioId;
+    private String operarioUsername;
 }

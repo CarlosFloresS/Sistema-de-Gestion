@@ -2,7 +2,7 @@ package com.cibertec.proyectosw2.service.impl;
 
 import com.cibertec.proyectosw2.dto.UsuarioCreateDto;
 import com.cibertec.proyectosw2.dto.UsuarioDto;
-import com.cibertec.proyectosw2.entity.Rol;
+import com.cibertec.proyectosw2.entity.enums.Rol;
 import com.cibertec.proyectosw2.entity.Usuario;
 import com.cibertec.proyectosw2.exception.ResourceNotFoundException;
 import com.cibertec.proyectosw2.repository.UsuarioRepository;

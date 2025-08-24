@@ -1,14 +1,15 @@
 package com.cibertec.proyectosw2.service;
 
-import com.cibertec.proyectosw2.dto.ProductoDto;
-import com.cibertec.proyectosw2.entity.Producto;
-
+import com.cibertec.proyectosw2.dto.ProductoRequestDto;
+import com.cibertec.proyectosw2.dto.ProductoResponseDto;
 import java.util.List;
 
 public interface ProductoService {
-    ProductoDto crear(ProductoDto dto);
-    List<ProductoDto> listar();
-    ProductoDto actualizar(Long id, ProductoDto dto);
-    void eliminar(Long id);           // deshabilita (soft-delete)
-    Producto obtenerEntidad(Long id); // uso interno
+    ProductoResponseDto registrarProducto(ProductoRequestDto productoDto);
+    ProductoResponseDto actualizarProducto(Long id, ProductoRequestDto productoDto);
+    ProductoResponseDto obtenerProductoPorId(Long id);
+    List<ProductoResponseDto> listarTodosLosProductos();
+    List<ProductoResponseDto> listarProductosActivos();
+    void desactivarProducto(Long id);
+    void activarProducto(Long id);
 }

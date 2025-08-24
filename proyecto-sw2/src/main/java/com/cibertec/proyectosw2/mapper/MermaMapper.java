@@ -1,33 +1,50 @@
 package com.cibertec.proyectosw2.mapper;
 
-import com.cibertec.proyectosw2.dto.MermaDto;
-import com.cibertec.proyectosw2.entity.*;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-
+import com.cibertec.proyectosw2.dto.MermaRequestDto;
+import com.cibertec.proyectosw2.dto.MermaResponseDto;
+import com.cibertec.proyectosw2.entity.Merma;
+import com.cibertec.proyectosw2.entity.Producto;
+import com.cibertec.proyectosw2.entity.Usuario;
+import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class MermaMapper {
+@Component
+public class MermaMapper {
 
-    public static Merma toEntity(MermaDto d, Producto producto, Usuario operario) {
+    /**
+     * Convierte un MermaRequestDto a una entidad Merma.
+     *
+     * @param dto El DTO de entrada.
+     * @param producto El producto afectado por la merma.
+     * @param operario El usuario que registra la merma.
+     * @return Una entidad Merma lista para ser guardada.
+     */
+    public Merma toEntity(MermaRequestDto dto, Producto producto, Usuario operario) {
         return Merma.builder()
-                .id(d.getId())
                 .producto(producto)
-                .cantidad(d.getCantidad())
-                .motivo(d.getMotivo())
+                .cantidad(dto.getCantidad())
+                .motivo(dto.getMotivo())
                 .fecha(LocalDateTime.now())
                 .operario(operario)
                 .build();
     }
 
-    public static MermaDto toDto(Merma m) {
-        return MermaDto.builder()
-                .id(m.getId())
-                .productoId(m.getProducto().getId())
-                .cantidad(m.getCantidad())
-                .motivo(m.getMotivo())
-                .fecha(m.getFecha())
+    /**
+     * Convierte una entidad Merma a un MermaResponseDto.
+     *
+     * @param entity La entidad Merma desde la base de datos.
+     * @return Un DTO con datos enriquecidos.
+     */
+    public MermaResponseDto toResponseDto(Merma entity) {
+        return MermaResponseDto.builder()
+                .id(entity.getId())
+                .productoId(entity.getProducto().getId())
+                .productoNombre(entity.getProducto().getNombre())
+                .cantidad(entity.getCantidad())
+                .motivo(entity.getMotivo())
+                .fecha(entity.getFecha())
+                .operarioId(entity.getOperario().getId())
+                .operarioUsername(entity.getOperario().getUsername())
                 .build();
     }
 }

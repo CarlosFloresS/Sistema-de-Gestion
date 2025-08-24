@@ -1,26 +1,18 @@
 package com.cibertec.proyectosw2.dto;
 
-import jakarta.validation.constraints.*;
-import lombok.*;
-
+import lombok.Builder;
+import lombok.Data;
 import java.math.BigDecimal;
 
 @Data
 @Builder
-public class ProductoDto {
+public class ProductoResponseDto {
 
     private Long id;
-
-    @NotBlank
-    @Size(max = 80)
     private String nombre;
-
-    @Size(max = 255)
     private String descripcion;
-
-    @Positive
     private BigDecimal precio;
-
-    @PositiveOrZero
+    private BigDecimal costo;
     private Integer stock;
+    private Boolean estado;
 }

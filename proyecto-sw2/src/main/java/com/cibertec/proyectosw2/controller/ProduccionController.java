@@ -1,36 +1,42 @@
 package com.cibertec.proyectosw2.controller;
 
-import com.cibertec.proyectosw2.dto.ProduccionDto;
+import com.cibertec.proyectosw2.dto.ProduccionRequestDto;
+import com.cibertec.proyectosw2.dto.ProduccionResponseDto;
+import com.cibertec.proyectosw2.security.CustomUserDetails;
 import com.cibertec.proyectosw2.service.ProduccionService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.*;
+import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/producciones")
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class ProduccionController {
 
-    private final ProduccionService service;
+    private final ProduccionService produccionService;
 
-    /* Listar todas las producciones */
-    @GetMapping
-    public List<ProduccionDto> listar() {
-        return service.listar();
-    }
-
-    /* Detalle por ID */
-    @GetMapping("/{id}")
-    public ProduccionDto detalle(@PathVariable Long id) {
-        return service.buscar(id);
-    }
-
-    /* Registrar nueva producción */
     @PostMapping
-    public ResponseEntity<ProduccionDto> crear(@RequestBody @Valid ProduccionDto dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.crear(dto));
+    public ResponseEntity<ProduccionResponseDto> registrarProduccion(
+            @RequestBody @Valid ProduccionRequestDto dto,
+            @AuthenticationPrincipal CustomUserDetails currentUser) {
+
+        Long operarioId = currentUser.getId();
+        ProduccionResponseDto produccionGuardada = produccionService.registrarProduccion(dto, operarioId);
+        return new ResponseEntity<>(produccionGuardada, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ProduccionResponseDto> obtenerProduccionPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(produccionService.obtenerProduccionPorId(id));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ProduccionResponseDto>> listarTodasLasProducciones() {
+        return ResponseEntity.ok(produccionService.listarTodasLasProducciones());
     }
 }

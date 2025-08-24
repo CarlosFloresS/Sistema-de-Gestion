@@ -1,4 +1,4 @@
-package com.cibertec.proyectosw2.entity;
+package com.cibertec.proyectosw2.entity.enums;
 
 public enum Rol {
     ADMIN,

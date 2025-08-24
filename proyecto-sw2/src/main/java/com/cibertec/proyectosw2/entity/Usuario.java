@@ -1,5 +1,6 @@
 package com.cibertec.proyectosw2.entity;
 
+import com.cibertec.proyectosw2.entity.enums.Rol;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;

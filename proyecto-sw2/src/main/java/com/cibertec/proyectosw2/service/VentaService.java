@@ -1,10 +1,15 @@
 package com.cibertec.proyectosw2.service;
 
-import com.cibertec.proyectosw2.dto.VentaDto;
-
-import java.util.List;
+import com.cibertec.proyectosw2.dto.VentaRequestDto;
+import com.cibertec.proyectosw2.dto.VentaResponseDto;
+import java.util.List; // Asegúrate de importar List
 
 public interface VentaService {
-    VentaDto crear(VentaDto dto);
-    List<VentaDto> listar();
+
+    // Cambia el tipo de retorno de VentaResponseDto a List<VentaResponseDto>
+    List<VentaResponseDto> registrarVenta(VentaRequestDto ventaDto, Long vendedorId);
+
+    VentaResponseDto obtenerVentaPorId(Long id);
+
+    List<VentaResponseDto> listarTodasLasVentas();
 }

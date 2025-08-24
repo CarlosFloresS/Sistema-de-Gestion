@@ -1,54 +1,64 @@
 package com.cibertec.proyectosw2.service.impl;
 
-import com.cibertec.proyectosw2.dto.ProduccionDto;
-import com.cibertec.proyectosw2.entity.*;
+import com.cibertec.proyectosw2.dto.ProduccionRequestDto;
+import com.cibertec.proyectosw2.dto.ProduccionResponseDto;
+import com.cibertec.proyectosw2.entity.Producto;
+import com.cibertec.proyectosw2.entity.Produccion;
+import com.cibertec.proyectosw2.entity.Usuario;
 import com.cibertec.proyectosw2.exception.ResourceNotFoundException;
 import com.cibertec.proyectosw2.mapper.ProduccionMapper;
+import com.cibertec.proyectosw2.repository.ProductoRepository;
 import com.cibertec.proyectosw2.repository.ProduccionRepository;
+import com.cibertec.proyectosw2.repository.UsuarioRepository;
+import com.cibertec.proyectosw2.service.InventarioService;
 import com.cibertec.proyectosw2.service.ProduccionService;
-import com.cibertec.proyectosw2.service.ProductoService;
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
-@Transactional
+@AllArgsConstructor
 public class ProduccionServiceImpl implements ProduccionService {
 
-    private final ProduccionRepository produccionRepo;
-    private final ProductoService productoService;
-    private final com.cibertec.proyectosw2.security.UserDetailsServiceImpl userDetailsService;
+    private final ProduccionRepository produccionRepository;
+    private final ProductoRepository productoRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final ProduccionMapper produccionMapper;
+    private final InventarioService inventarioService;
 
     @Override
-    public ProduccionDto crear(ProduccionDto dto) {
-        Producto producto = productoService.obtenerEntidad(dto.getProductoId());
-        Usuario operario  = userDetailsService.getCurrentUser();
+    @Transactional
+    public ProduccionResponseDto registrarProduccion(ProduccionRequestDto produccionDto, Long operarioId) {
+        Producto producto = productoRepository.findById(produccionDto.getProductoId())
+                .orElseThrow(() -> new ResourceNotFoundException("Producto", produccionDto.getProductoId()));
 
-        Produccion saved = produccionRepo.save(
-                ProduccionMapper.toEntity(dto, producto, operario)
-        );
+        Usuario operario = usuarioRepository.findById(operarioId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario", operarioId));
 
-        /* Aumenta stock */
-        producto.setStock(producto.getStock() + dto.getCantidad());
+        Produccion nuevaProduccion = produccionMapper.toEntity(produccionDto, producto, operario);
+        Produccion produccionGuardada = produccionRepository.save(nuevaProduccion);
 
-        return ProduccionMapper.toDto(saved);
+        inventarioService.registrarMovimientoDesdeProduccion(produccionGuardada);
+
+        return produccionMapper.toResponseDto(produccionGuardada);
     }
 
     @Override
-    public List<ProduccionDto> listar() {
-        return produccionRepo.findAll()
-                .stream()
-                .map(ProduccionMapper::toDto)
-                .toList();
+    @Transactional(readOnly = true)
+    public ProduccionResponseDto obtenerProduccionPorId(Long id) {
+        Produccion produccion = produccionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Producción", id));
+        return produccionMapper.toResponseDto(produccion);
     }
 
     @Override
-    public ProduccionDto buscar(Long id) {
-        Produccion p = produccionRepo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Produccion", id));
-        return ProduccionMapper.toDto(p);
+    @Transactional(readOnly = true)
+    public List<ProduccionResponseDto> listarTodasLasProducciones() {
+        return produccionRepository.findAll().stream()
+                .map(produccionMapper::toResponseDto)
+                .collect(Collectors.toList());
     }
 }
